@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#075E54">
+    <title>NEX Network - Chat Empresarial</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* === COLORES EMPRESA + ESTILO WHATSAPP === */
+        :root {
+            --primario: #075E54;
+            --secundario: #128C7E;
+            --fondo: #0F1920;
+            --fondo-barra: #1A2A33;
+            --burbuja-mia: #005C4B;
+            --burbuja-otra: #1F2C34;
+            --texto: #E9EDEF;
+            --texto-claro: #8696A0;
+            --borde: #2A3942;
+            --resaltado: #25D366;
+            --amarillo: #FFC107;
+            --rojo: #FF4444;
+            --azul: #34B7F1;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            background: var(--fondo);
+            color: var(--texto);
+        }
+
+        /* === PANTALLAS DE ACCESO Y RECUPERACIÓN === */
+        .pantalla {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--fondo);
+            padding: 20px;
+            z-index: 999;
+        }
+        .caja-acceso {
+            width: 100%;
+            max-width: 400px;
+            background: var(--fondo-barra);
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid var(--borde);
+        }
+        .logo-acceso { text-align: center; margin-bottom: 20px; }
+        .logo-acceso h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            color: var(--resaltado);
+        }
+        .grupo { margin-bottom: 14px; }
+        .grupo label {
+            display: block;
+            font-size: 14px;
+            color: var(--texto-claro);
+            margin-bottom: 6px;
+        }
+        .grupo input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--borde);
+            background: var(--fondo);
+            color: var(--texto);
+            font-size: 15px;
+        }
+        .grupo input:focus { outline: none; border-color: var(--secundario); }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-principal { background: var(--primario); color: white; }
+        .btn-principal:active { transform: scale(0.98); }
+        .btn-secundario { background: transparent; color: var(--secundario); border: 1px solid var(--secundario); margin-top: 8px; }
+        .btn-texto { background: none; border: none; color: var(--azul); font-size: 13px; cursor: pointer; margin-top: 5px; text-align: right; }
+        .mensaje { font-size: 13px; margin: 10px 0; padding: 8px; border-radius: 6px; text-align: center; display: none; }
+        .mensaje-exito { color: var(--resaltado); background: rgba(37,211,102,0.1); }
+        .mensaje-error { color: var(--rojo); background: rgba(255,68,68,0.1); }
+        .cambio-pantalla {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            color: var(--texto-claro);
+        }
+        .cambio-pantalla span { color: var(--resaltado); cursor: pointer; font-weight: 500; }
+
+        /* === PERFIL DE USUARIO === */
+        .cabecera-perfil {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: var(--fondo-barra);
+            border-bottom: 1px solid var(--borde);
+        }
+        .foto-perfil {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: var(--secundario);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+        }
+        .foto-perfil img { width: 100%; height: 100%; object-fit: cover; }
+        .foto-perfil .cambiar-foto {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center; justify-content: center;
+            font-size: 12px;
+            text-align: center;
+            padding: 5px;
+        }
+        .foto-perfil:hover .cambiar-foto { display: flex; }
+        .info-perfil h3 { font-size: 16px; }
+        .info-perfil p { font-size: 13px; color: var(--texto-claro); }
+
+        /* === LISTA DE CHATS Y GRUPOS === */
+        .lista-chats {
+            height: calc(100vh - 140px);
+            overflow-y: auto;
+        }
+        .item-chat {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            border-bottom: 1px solid var(--borde);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .item-chat:hover { background: rgba(255,255,255,0.03); }
+        .item-chat-avatar {
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            background: var(--secundario);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .item-chat-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .item-chat-info { flex: 1; }
+        .item-chat-nombre { font-size: 15px; font-weight: 500; margin-bottom: 2px; }
+        .item-chat-mensaje { font-size: 13px; color: var(--texto-claro); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .item-chat-hora { font-size: 11px; color: var(--texto-claro); flex-shrink: 0; }
+        .btn-crear-grupo {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 55px; height: 55px;
+            border-radius: 50%;
+            background: var(--resaltado);
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37,211,102,0.3);
+            z-index: 50;
+        }
+
+        /* === CHAT INDIVIDUAL / GRUPO === */
+        .cabecera-chat {
+            position: sticky;
+            top: 0;
+            background: var(--fondo-barra);
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--borde);
+            cursor: pointer;
+        }
+        .btn-volver {
+            background: none; border: none; color: var(--texto); font-size: 20px; cursor: pointer; padding: 5px;
+        }
+        .caja-mensajes {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232A3942' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .mensaje {
+            max-width: 75%;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .mensaje-propio { align-self: flex-end; }
+        .mensaje-otro { align-self: flex-start; }
+        .mensaje-autor { font-size: 11px; color: var(--texto-claro); margin: 0 10px; }
+        .texto-mensaje {
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+        .mensaje-propio .texto-mensaje {
+            background: var(--burbuja-mia);
+            border-bottom-right-radius: 2px;
+        }
+        .mensaje-otro .texto-mensaje {
+            background: var(--burbuja-otra);
+            border-bottom-left-radius: 2px;
+        }
+        .hora-mensaje {
+            font-size: 10px;
+            color: var(--texto-claro);
+            align-self: flex-end;
+            margin: 0 10px 2px;
+        }
+        .imagen-mensaje {
+            max-width: 220px;
+            border-radius: 8px;
+            margin-top: 4px;
+        }
+        .barra-escribir {
+            padding: 10px 15px;
+            background: var(--fondo-barra);
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+            border-top: 1px solid var(--borde);
+        }
+        .boton-icono {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255,255,255,0.05);
+            color: var(--texto-claro);
+            font-size: 18px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .entrada-mensaje {
+            flex: 1;
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: 1px solid var(--borde);
+            background: var(--fondo);
+            color: var(--texto);
+            font-size: 15px;
+            resize: none;
+            min-height: 40px;
+            max-height: 100px;
+        }
+        .btn-enviar {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: var(--secundario);
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        /* === CONFIGURACIÓN DE GRUPO === */
+        .config-grupo {
+            padding: 15px;
+            height: calc(100vh - 70px);
+            overflow-y: auto;
+        }
+        .seccion-config {
+            margin-bottom: 20px;
+            background: var(--fondo-barra);
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid var(--borde);
+        }
+        .seccion-config h4 { color: var(--resaltado); margin-bottom: 12px; font-size: 15px; }
+        .miembro-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--borde);
+        }
+        .miembro-item:last-child { border-bottom: none; }
+        .miembro-nombre { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+        .etiqueta-admin {
+            font-size: 10px;
+            background: var(--amarillo);
+            color: black;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .btn-eliminar {
+            background: rgba(255,68,68,0.15);
+            color: var(--rojo);
+            border: 1px solid var(--rojo);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .enlace-invitacion {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .enlace-invitacion input {
+            flex: 1;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid var(--borde);
+            background: var(--fondo);
+            color: var(--texto-claro);
+            font-size: 12px;
+        }
+        .btn-copiar {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: none;
+            background: var(--secundario);
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        /* === MODALES === */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 200;
+        }
+        .modal-contenido {
+            background: var(--fondo-barra);
+            border: 1px solid var(--borde);
+            border-radius: 16px;
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-contenido h3 { margin-bottom: 15px; color: var(--resaltado); }
+        .modal-botones {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .modal-botones .btn { width: auto; padding: 10px 15px; }
+
+        /* === NAVEGACIÓN INFERIOR === */
+        .navegacion {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--fondo-barra);
+            border-top: 1px solid var(--borde);
+            padding: 10px 15px 18px;
+            display: flex;
+            justify-content: space-around;
+            z-index: 100;
+        }
+        .btn-nav {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            background: transparent;
+            border: none;
+            color: var(--texto-claro);
+            font-size: 11px;
+            cursor: pointer;
+            border-radius: 10px;
+            padding: 5px 10px;
+        }
+        .btn-nav.activo { color: var(--resaltado); }
+        .btn-nav span { font-size: 22px; }
+        .btn-tienda {
+            position: relative;
+            overflow: hidden;
+            border: 2px solid transparent;
+        }
+        .btn-tienda::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(45deg, #ff0000, #ff9900, #00ff00, #0099ff, #9900ff, #ff0000);
+            background-size: 400% 400%;
+            border-radius: 12px;
+            animation: brilloRGB 4s linear infinite;
+            filter: blur(4px);
+            opacity: 0.7;
+            z-index: -1;
+        }
+        @keyframes brilloRGB {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* === OCULTAR SECCIONES POR DEFECTO === */
+        .seccion { display: none; height: 100%; flex-direction: column; }
+        .seccion.activa { display: flex; }
+        .oculto { display: none !important; }
+    </style>
+</head>
+<body>
+    <!-- PANTALLAS DE ACCESO -->
+    <div class="pantalla" id="pantallaRegistro">
+        <div class="caja-acceso">
+            <div class="logo-acceso"><h2>NEX NETWORK</h2></div>
+            <div class="grupo">
+                <label>Tu nombre completo</label>
+                <input type="text" id="regApodo" placeholder="Ej: Juan Pérez" required>
+            </div>
+            <div class="grupo">
+                <label>Correo corporativo</label>
+                <input type="email" id="regCorreo" placeholder="tu@empresa.com" required>
+            </div>
+            <div class="grupo">
+                <label>Contraseña</label>
+                <input type="password" id="regClave" placeholder="Mínimo 6 caracteres" required>
+            </div>
+            <div class="grupo">
+                <label>Confirmar contraseña</label>
+                <input type="password" id="regConfirmar" placeholder="Repite tu contraseña" required>
+            </div>
+            <div class="mensaje mensaje-error" id="errorRegistro"></div>
+            <button class="btn btn-principal" onclick="registrarUsuario()">Crear cuenta</button>
+            <div class="cambio-pantalla">¿Ya tienes cuenta? <span onclick="mostrarPantalla('login')">Iniciar sesión</span></div>
+        </div>
+    </div>
+
+    <div class="pantalla" id="pantallaLogin">
+        <div class="caja-acceso">
+            <div class="logo-acceso"><h2>NEX NETWORK</h2></div>
+            <div class="grupo">
+                <label>Correo corporativo</label>
+                <input type="email" id="logCorreo" placeholder="tu@empresa.com" required>
+            </div>
+            <div class="grupo">
+                <label>Contraseña</label>
+                <input type="password" id="logClave" placeholder="Escribe tu contraseña" required>
+            </div>
+            <button class="btn-texto" onclick="mostrarPantalla('recuperar')">¿Olvidaste tu contraseña?</button>
+            <div class="mensaje mensaje-error" id="errorLogin"></div>
+            <button class="btn btn-principal" onclick="iniciarSesion()">Ingresar</button>
+            <div class="cambio-pantalla">¿No tienes cuenta? <span onclick="mostrarPantalla('registro')">Crear cuenta</span></div>
+        </div>
+    </div>
+
+    <div class="pantalla" id="pantallaRecuperar">
+        <div class="caja-acceso">
+            <div class="logo-acceso"><h2>Recuperar contraseña</h2></div>
+            <div class="grupo">
+                <label>Ingresa tu correo corporativo</label>
+                <input type="email" id="recCorreo" placeholder="tu@empresa.com" required>
+            </div>
+            <div class="mensaje mensaje-exito" id="mensajeRecuperar"></div>
+            <div class="mensaje mensaje-error" id="errorRecuperar"></div>
+            <button class="btn btn-principal" onclick="recuperarContrasena()">Recuperar contraseña</button>
+            <button class="btn btn-secundario" onclick="mostrarPantalla('login')">Volver al inicio</button>
+        </div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="seccion" id="seccionListaChats">
+        <div class="cabecera-perfil">
+            <div class="foto-perfil" onclick="document.getElementById('subirFotoPerfil').click()">
+                <span id="inicialPerfil">U</span>
+                <img id="vistaFotoPerfil" style="display:none;">
+                <div class="cambiar-foto">Cambiar foto</div>
+            </div>
+            <input type="file" id="subirFotoPerfil" accept="image/*" style="display:none;" onchange="cambiarFotoPerfil(this)">
+            <div class="info-perfil">
+                <h3 id="nombrePerfil">Usuario</h3>
+                <p>Disponible</p>
+            </div>
+        </div>
+        <div class="lista-chats" id="listaChats"></div>
+        <button class="btn-crear-grupo" onclick="abrirModalCrearGrupo()">+</button>
+    </div>
+
+    <div class="seccion" id="seccionChat">
+        <div class="cabecera-chat">
+            <button class="btn-volver" onclick="volverALista()">←</button>
+            <div class="item-chat-avatar" id="avatarChatActivo">💬</div>
+            <div class="item-chat-info" onclick="abrirConfiguracionGrupo()">
+                <div class="item-chat-nombre" id="nombreChatActivo">Chat</div>
+                <div class="item-chat-mensaje" id="infoChatActivo">Conectado</div>
+            </div>
+        </div>
+        <div class="caja-mensajes" id="cajaMensajes"></div>
+        <div class="barra-escribir">
+            <input type="file" id="entradaImagenChat" accept="image/*" style="display:none;" onchange="subirImagenChat(this)">
+            <button class="boton-icono" onclick="document.getElementById('entradaImagenChat').click()">📷</button>
+            <button class="boton-icono">😀</button>
+            <textarea id="entradaMensaje" class="entrada-mensaje" placeholder="Escribe un mensaje..." onkeydown="enviarConEnter(event)"></textarea>
+            <button class="boton-icono">🎤</button>
+            <button class="btn-enviar" onclick="enviarMensaje()">➤</button>
+        </div>
+    </div>
+
+    <div class="seccion" id="seccionConfiguracionGrupo">
+        <div class="cabecera-chat">
+            <button class="btn-volver" onclick="cerrarConfiguracionGrupo()">←</button>
+            <h3 id="tituloConfigGrupo">Configuración del grupo</h3>
+        </div>
+        <div class="config-grupo" id="contenidoConfigGrupo"></div>
+    </div>
+
+    <!-- MODALES -->
+    <div class="modal" id="modalCrearGrupo">
+        <div class="modal-contenido">
+            <h3>Crear nuevo grupo</h3>
+            <div class="grupo">
+                <label>Nombre del grupo</label>
+                <input type="text" id="nombreNuevoGrupo" placeholder="Ej: Equipo de Ventas" required>
+            </div>
+            <div class="grupo">
+                <label>Descripción (opcional)</label>
+                <input type="text" id="descripcionNuevoGrupo" placeholder="De qué trata este grupo">
+            </div>
+            <div class="modal-botones">
+                <button class="btn btn-secundario" onclick="cerrarModalCrearGrupo()">Cancelar</button>
+                <button class="btn btn-principal" onclick="crearGrupo()">Crear grupo</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="modalUnirseGrupo">
+        <div class="modal-contenido">
+            <h3>Unirse a un grupo</h3>
+            <div class="grupo">
+                <label>Ingresa el código de invitación</label>
+                <input type="text" id="codigoInvitacion" placeholder="Código del grupo" required>
+            </div>
+            <div class="modal-botones">
+                <button class="btn btn-secundario" onclick="cerrarModalUnirseGrupo()">Cancelar</button>
+                <button class="btn btn-principal" onclick="unirseAGrupo()">Unirme</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NAVEGACIÓN -->
+    <nav class="navegacion" id="navegacionPrincipal" style="display:none;">
+        <button class="btn-nav activo" onclick="cambiarSeccionPrincipal('lista')">
+            <span>💬</span> Chats
+        </button>
+        <button class="btn-nav" onclick="abrirModalUnirseGrupo()">
+            <span>➕</span> Unirme
+        </button>
+        <button class="btn-nav btn-tienda" onclick="window.location.href='tienda.html'">
+            <span>🛒</span> Tienda
+        </button>
+        <button class="btn-nav" onclick="cerrarSesion()">
+            <span>🚪</span> Salir
+        </button>
+    </nav>
+
+    <script>
+        // === PROTECCIÓN BÁSICA SIN ERRORES EN APK ===
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if ((e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key.toUpperCase())) || e.key === 'F12') e.preventDefault();
+        });
+
+        // === CREDENCIALES Y SEGURIDAD ===
+        const ADMIN_CORREO_COD = 'YWRtaW5AbmV4bmV0d29yay5jb20=';
+        const ADMIN_CLAVE_COD = 'dHVfY2xhdmVfc2VjcmV0YV9hZG1pbl8yMDI2';
+        function obtenerCredencialesAdmin() { return { correo: atob(ADMIN_CORREO_COD), clave: atob(ADMIN_CLAVE_COD) }; }
+        function protegerClave(clave) {
+            let codigo = 0;
+            for(let i = 0; i < clave.length; i++) codigo = ((codigo << 5) - codigo) + clave.charCodeAt(i);
+            return codigo.toString(16);
+        }
+
+        // === ALMACENAMIENTO DE DATOS ===
+        let usuarios = JSON.parse(localStorage.getItem('usuariosNEX')) || [];
+        let sesionActiva = JSON.parse(localStorage.getItem('sesionActivaNEX')) || null;
+        let grupos = JSON.parse(localStorage.getItem('gruposNEX')) || [];
+        let mensajes = JSON.parse(localStorage.getItem('mensajesNEX')) || [];
+        let chatActivo = null;
+
+        // === INICIO DE LA APP ===
+        window.addEventListener('load', () => {
+            sesionActiva ? mostrarAplicacion() : mostrarPantalla('login');
+        });
+
+        // === NAVEGACIÓN GENERAL ===
+        function mostrarPantalla(tipo) {
+            document.querySelectorAll('.pantalla').forEach(p => p.style.display = 'none');
+            document.getElementById('navegacionPrincipal').style.display = 'none';
+            document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activa'));
+            if(tipo) document.getElementById(`pantalla${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`).style.display = 'flex';
+        }
+        function mostrarAplicacion() {
+            mostrarPantalla();
+            document.getElementById('navegacionPrincipal').style.display = 'flex';
+            actualizarPerfilUsuario();
+            actualizarListaChats();
+            cambiarSeccionPrincipal('lista');
+        }
+        function cambiarSeccionPrincipal(tipo) {
+            document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activa'));
+            document.querySelectorAll('.btn-nav').forEach(b => b.classList.remove('activo'));
+            if(tipo === 'lista') {
+                document.getElementById('seccionListaChats').classList.add('activa');
+                document.querySelector('.btn-nav:first-child').classList.add('activo');
+            }
+        }
+        function volverALista() {
+            chatActivo = null;
+            cambiarSeccionPrincipal('lista');
+        }
+
+        // === REGISTRO Y SESIÓN ===
+        function registrarUsuario() {
+            const apodo = document.getElementById('regApodo').value.trim();
+            const correo = document.getElementById('regCorreo').value.trim().toLowerCase();
+            const clave = document.getElementById('regClave').value;
+            const confirmar = document.getElementById('regConfirmar').value;
+            const error = document.getElementById('errorRegistro');
+            if(!apodo || !correo || clave.length < 6) {
+                error.textContent = 'Completa todos los campos (mínimo 6 caracteres)'; error.style.display = 'block'; return;
+            }
+            if(clave !== confirmar) {
+                error.textContent = 'Las contraseñas no coinciden'; error.style.display = 'block'; return;
+            }
+            if(usuarios.find(u => u.correo === correo)) {
+                error.textContent = 'Este correo ya está registrado'; error.style.display = 'block'; return;
+            }
+            usuarios.push({
+                id: Date.now().toString(), apodo, correo,
+                claveProtegida: protegerClave(clave),
+                foto: null,
+                tipo: 'usuario'
+            });
+            localStorage.setItem('usuariosNEX', JSON.stringify(usuarios));
+            alert('Cuenta creada correctamente ✅');
+            mostrarPantalla('login');
+        }
+        function iniciarSesion() {
+            const correo = document.getElementById('logCorreo').value.trim().toLowerCase();
+            const clave = document.getElementById('logClave').value;
+            const error = document.getElementById('errorLogin');
+            const credenciales = obtenerCredencialesAdmin();
+            let usuario = usuarios.find(u => u.correo === correo && u.claveProtegida === protegerClave(clave));
+            if(correo === credenciales.correo && clave === credenciales.clave) {
+                let admin = usuarios.find(u => u.correo === credenciales.correo);
+                if(!admin) {
+                    admin = { id: Date.now().toString(), apodo: 'ADMIN NEX', correo: credenciales.correo, claveProtegida: protegerClave(credenciales.clave), foto: null, tipo: 'admin' };
+                    usuarios.push(admin);
+                } else admin.tipo = 'admin';
+                localStorage.setItem('usuariosNEX', JSON.stringify(usuarios));
+                usuario = admin;
+            }
+            if(!usuario) {
+                error.textContent = 'Correo o contraseña incorrectos'; error.style.display = 'block'; return;
+            }
+            sesionActiva = usuario;
+            localStorage.setItem('sesionActivaNEX', JSON.stringify(sesionActiva));
+            mostrarAplicacion();
+        }
+        function cerrarSesion() {
+            if(confirm('¿Cerrar tu sesión?')) {
+                sesionActiva = null;
+                localStorage.removeItem('sesionActivaNEX');
+                mostrarPantalla('login');
+            }
+        }
+
+        // === RECUPERACIÓN DE CONTRASEÑA ===
+        function recuperarContrasena() {
+            const correo = document.getElementById('recCorreo').value.trim().toLowerCase();
+            const mensaje = document.getElementById('mensajeRecuperar');
+            const error = document.getElementById('errorRecuperar');
+            error.style.display = 'none'; mensaje.style.display = 'none';
+            const usuario = usuarios.find(u => u.correo === correo);
+            if(!usuario) {
+                error.textContent = 'No existe una cuenta con este correo'; error.style.display = 'block'; return;
+            }
+            // En versión real aquí se enviaría el correo, en local se muestra la contraseña original para pruebas
+            const contraseñaOriginal = prompt('Escribe tu nueva contraseña (mínimo 6 caracteres):');
+            if(!contraseñaOriginal || contraseñaOriginal.length < 6) {
+                error.textContent = 'La contraseña debe tener al menos 6 caracteres'; error.style.display = 'block'; return;
+            }
+            usuario.claveProtegida = protegerClave(contraseñaOriginal);
+            localStorage.setItem('usuariosNEX', JSON.stringify(usuarios));
+            mensaje.textContent = '¡Contraseña actualizada correctamente!'; mensaje.style.display = 'block';
+            setTimeout(() => mostrarPantalla('login'), 2000);
+        }
+
+        // === FOTO DE PERFIL ===
+        function actualizarPerfilUsuario() {
+            document.getElementById('nombrePerfil').textContent = sesionActiva.apodo;
+            document.getElementById('inicialPerfil').textContent = sesionActiva.apodo.charAt(0).toUpperCase();
+            if(sesionActiva.foto) {
+                document.getElementById('vistaFotoPerfil').src = sesionActiva.foto;
+                document.getElementById('vistaFotoPerfil').style.display = 'block';
+                document.getElementById('inicialPerfil').style.display = 'none';
+            }
+        }
+        function cambiarFotoPerfil(input) {
+            const archivo = input.files[0]; if(!archivo) return;
+            const lector = new FileReader();
+            lector.onload = e => {
+                sesionActiva.foto = e.target.result;
+                const indice = usuarios.findIndex(u => u.id === sesionActiva.id);
+                if(indice !== -1) usuarios[indice].foto = e.target.result;
+                localStorage.setItem('usuariosNEX', JSON.stringify(usuarios));
+                localStorage.setItem('sesionActivaNEX', JSON.stringify(sesionActiva));
+                actualizarPerfilUsuario();
+            };
+            lector.readAsDataURL(archivo);
+        }
+
+        // === GESTIÓN DE GRUPOS ===
+        function abrirModalCrearGrupo() { document.getElementById('modalCrearGrupo').style.display = 'flex'; }
+        function cerrarModalCrearGrupo() { document.getElementById('modalCrearGrupo').style.display = 'none'; }
+        function abrirModalUnirseGrupo() { document.getElementById('modalUnirseGrupo').style.display = 'flex'; }
+        function cerrarModalUnirseGrupo() { document.getElementById('modalUnirseGrupo').style.display = 'none'; }
+
+        function generarCodigoInvitacion() {
+            return Math.random().toString(36).substring(2, 10).toUpperCase();
+        }
+
+        function crearGrupo() {
+            const nombre = document.getElementById('nombreNuevoGrupo').value.trim();
+            const descripcion = document.getElementById('descripcionNuevoGrupo').value.trim();
+            if(!nombre) { alert('Escribe un nombre para el grupo'); return; }
+            const nuevoGrupo = {
+                id: Date.now().toString(),
+                nombre,
+                descripcion,
+                codigoInvitacion: generarCodigoInvitacion(),
+                creadorId: sesionActiva.id,
+                miembros: [{ id: sesionActiva.id, rol: 'admin' }],
+                fechaCreacion: new Date().toLocaleDateString('es-CO')
+            };
+            grupos.push(nuevoGrupo);
+            localStorage.setItem('gruposNEX', JSON.stringify(grupos));
+            cerrarModalCrearGrupo();
+            actualizarListaChats();
+            alert(`¡Grupo creado! Comparte este código para invitar: ${nuevoGrupo.codigoInvitacion}`);
+        }
+
+        function unirseAGrupo() {
+            const codigo = document.getElementById('codigoInvitacion').value.trim().toUpperCase();
+            const grupo = grupos.find(g => g.codigoInvitacion === codigo);
+            if(!grupo) { alert('Código de invitación no válido'); return; }
+            if(grupo.miembros.find(m => m.id === sesionActiva.id)) { alert('Ya eres miembro de este grupo'); return; }
+            grupo.miembros.push({ id: sesionActiva.id, rol: 'miembro' });
+            localStorage.setItem('gruposNEX', JSON.stringify(grupos));
+            cerrarModalUnirseGrupo();
+            actualizarListaChats();
+            alert(`Te uniste al grupo: ${grupo.nombre}`);
+        }
+
+        function eliminarMiembroGrupo(grupoId, miembroId) {
+            const grupo = grupos.find(g => g.id === grupoId);
+            if(!grupo) return;
+            if(grupo.creadorId !== sesionActiva.id && sesionActiva.tipo !== 'admin') {
+                alert('Solo el creador o administradores pueden eliminar miembros'); return;
+            }
+            if(miembroId === grupo.creadorId) { alert('No puedes eliminar al creador del grupo'); return; }
+            if(confirm('¿Seguro que quieres eliminar a este miembro?')) {
+                grupo.miembros = grupo.miembros.filter(m => m.id !== miembroId);
+                localStorage.setItem('gruposNEX', JSON.stringify(grupos));
+                alert('Miembro eliminado correctamente');
+                abrirConfiguracionGrupo();
+            }
+        }
+
+        // === LISTA DE CHATS ===
+        function actualizarListaChats() {
+            const lista = document.getElementById('listaChats');
+            lista.innerHTML = '';
+            const misGrupos = grupos.filter(g => g.miembros.find(m => m.id === sesionActiva.id));
+            misGrupos.forEach(grupo => {
+                const item = document.createElement('div');
+                item.className = 'item-chat';
+                item.onclick = () => abrirChat(grupo);
+                item.innerHTML = `
+                    <div class="item-chat-avatar">👥</div>
+                    <div class="item-chat-info">
+                        <div class="item-chat-nombre">${grupo.nombre}</div>
+                        <div class="item-chat-mensaje">Código: ${grupo.codigoInvitacion}</div>
+                    </div>
+                    <div class="item-chat-hora">${grupo.fechaCreacion}</div>
+                `;
+                lista.appendChild(item);
+            });
+            if(misGrupos.length === 0) {
+                lista.innerHTML = `<div style="padding:30px;text-align:center;color:var(--texto-claro);">
+                    Aún no estás en ningún grupo<br>
+                    Usa el botón "+" para crear uno nuevo o "Unirme" para ingresar con un código
+                </div>`;
+            }
+        }
+
+        // === CHAT Y MENSAJES ===
+        function abrirChat(grupo) {
+            chatActivo = grupo;
+            document.getElementById('nombreChatActivo').textContent = grupo.nombre;
+            document.getElementById('infoChatActivo').textContent = `${grupo.miembros.length} miembros`;
+            cambiarSeccionPrincipal('chat');
+            actualizarChat();
+        }
+
+        function enviarMensaje() {
+            const texto = document.getElementById('entradaMensaje').value.trim();
+            if(!texto || !chatActivo) return;
+            mensajes.push({
+                id: Date.now().toString(),
+                grupoId: chatActivo.id,
+                autorId: sesionActiva.id,
+                autorNombre: sesionActiva.apodo,
+                texto,
+                hora: new Date().toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit'})
+            });
+            localStorage.setItem('mensajesNEX', JSON.stringify(mensajes));
+            document.getElementById('entradaMensaje').value = '';
+            actualizarChat();
+        }
+
+        function enviarConEnter(e) { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviarMensaje(); } }
+
+        function subirImagenChat(input) {
+            const archivo = input.files[0]; if(!archivo || !chatActivo) return;
+            const lector = new FileReader();
+            lector.onload = e => {
+                mensajes.push({
+                    id: Date.now().toString(),
+                    grupoId: chatActivo.id,
+                    autorId: sesionActiva.id,
+                    autorNombre: sesionActiva.apodo,
+                    imagen: e.target.result,
+                    hora: new Date().toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit'})
+                });
+                localStorage.setItem('mensajesNEX', JSON.stringify(mensajes));
+                actualizarChat();
+            };
+            lector.readAsDataURL(archivo);
+        }
+
+        function actualizarChat() {
+            if(!chatActivo) return;
+            const caja = document.getElementById('cajaMensajes');
+            caja.innerHTML = '';
+            const mensajesGrupo = mensajes.filter(m => m.grupoId === chatActivo.id);
+            mensajesGrupo.forEach(msg => {
+                const esMio = msg.autorId === sesionActiva.id;
+                const div = document.createElement('div');
+                div.className = `mensaje ${esMio ? 'mensaje-propio' : 'mensaje-otro'}`;
+                if(!esMio) div.innerHTML += `<div class="mensaje-autor">${msg.autorNombre}</div>`;
+                if(msg.texto) div.innerHTML += `<div class="texto-mensaje">${msg.texto}</div>`;
+                if(msg.imagen) div.innerHTML += `<img src="${msg.imagen}" class="imagen-mensaje">`;
+                div.innerHTML += `<div class="hora-mensaje">${msg.hora}</div>`;
+                caja.appendChild(div);
+            });
+            caja.scrollTop = caja.scrollHeight;
+        }
+
+        // === CONFIGURACIÓN DE GRUPO ===
+        function abrirConfiguracionGrupo() {
+            if(!chatActivo) return;
+            document.getElementById('tituloConfigGrupo').textContent = chatActivo.nombre;
+            const contenido = document.getElementById('contenidoConfigGrupo');
+            contenido.innerHTML = `
+                <div class="seccion-config">
+                    <h4>Información del grupo</h4>
+                    <p style="font-size:14px;color:var(--texto-claro);margin-bottom:10px;">${chatActivo.descripcion || 'Sin descripción'}</p>
+                    <div class="enlace-invitacion">
+                        <input type="text" value="${chatActivo.codigoInvitacion}" readonly id="codigoGrupo">
+                        <button class="btn-copiar" onclick="navigator.clipboard.writeText('${chatActivo.codigoInvitacion}').then(()=>alert('Código copiado ✅'))">Copiar</button>
+                    </div>
+                </div>
+                <div class="seccion-config">
+                    <h4>Miembros (${chatActivo.miembros.length})</h4>
+                    ${chatActivo.miembros.map(m => {
+                        const usuario = usuarios.find(u => u.id === m.id);
+                        if(!usuario) return '';
+                        const esCreador = chatActivo.creadorId === m.id;
+                        const puedeEliminar = chatActivo.creadorId === sesionActiva.id && !esCreador;
+                        return `
+                            <div class="miembro-item">
+                                <div class="miembro-nombre">
+                                    ${usuario.apodo}
+                                    ${esCreador ? '<span class="etiqueta-admin">Creador</span>' : ''}
+                                    ${m.rol === 'admin' && !esCreador ? '<span class="etiqueta-admin">Admin</span>' : ''}
+                                </div>
+                                ${puedeEliminar ? `<button class="btn-eliminar" onclick="eliminarMiembroGrupo('${chatActivo.id}', '${m.id}')">Eliminar</button>` : ''}
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+            cambiarSeccionPrincipal('configuracion');
+            document.querySelectorAll('.btn-nav').forEach(b => b.classList.remove('activo'));
+        }
+        function cerrarConfiguracionGrupo() { abrirChat(chatActivo); }
+    </script>
+</body>
+</html>
