@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#075E54">
-    <title>NEX Network - Chat Empresarial</title>
+    <title>WhatsApp XD</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -15,7 +15,7 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* === COLORES ORIGINALES DE LA EMPRESA + ESTILO WHATSAPP === */
+        /* === COLORES EMPRESA + ESTILO WHATSAPP === */
         :root {
             --primario: #075E54;
             --secundario: #128C7E;
@@ -27,9 +27,9 @@
             --texto-claro: #8696A0;
             --borde: #2A3942;
             --resaltado: #25D366;
-            --amarillo: #FFC107;
-            --rojo: #FF4444;
             --azul: #34B7F1;
+            --rojo: #FF4444;
+            --gris: #667781;
         }
 
         html, body {
@@ -39,7 +39,7 @@
             color: var(--texto);
         }
 
-        /* === PANTALLAS DE ACCESO (ORIGINAL + RECUPERACIÓN) === */
+        /* === PANTALLAS DE ACCESO === */
         .pantalla {
             position: fixed;
             inset: 0;
@@ -58,13 +58,16 @@
             padding: 25px;
             border: 1px solid var(--borde);
         }
-        .logo-acceso { text-align: center; margin-bottom: 20px; }
-        .logo-acceso h2 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 24px;
-            color: var(--resaltado);
+        .logo {
+            text-align: center;
+            margin-bottom: 25px;
         }
-        .grupo { margin-bottom: 14px; }
+        .logo h1 {
+            font-size: 28px;
+            color: var(--resaltado);
+            font-weight: 700;
+        }
+        .grupo { margin-bottom: 15px; }
         .grupo label {
             display: block;
             font-size: 14px;
@@ -106,40 +109,69 @@
         }
         .cambio-pantalla span { color: var(--resaltado); cursor: pointer; font-weight: 500; }
 
-        /* === BARRA DE CHAT Y PERFIL (ORIGINAL) === */
-        .cabecera-chat {
-            position: sticky;
-            top: 0;
+        /* === SECCIONES GENERALES === */
+        .seccion { display: none; height: 100%; flex-direction: column; }
+        .seccion.activa { display: flex; }
+        .cabecera {
             background: var(--fondo-barra);
             padding: 12px 15px;
             display: flex;
             align-items: center;
             gap: 12px;
             border-bottom: 1px solid var(--borde);
-            cursor: pointer;
         }
-        .icono-canal, .item-chat-avatar {
-            width: 40px; height: 40px;
+        .btn-volver {
+            background: none; border: none; color: var(--texto); font-size: 20px; cursor: pointer; padding: 5px;
+        }
+        .avatar {
+            width: 42px; height: 42px;
             border-radius: 50%;
             background: var(--secundario);
             display: flex; align-items: center; justify-content: center;
             font-size: 18px;
-            flex-shrink: 0;
             overflow: hidden;
+            flex-shrink: 0;
+            cursor: pointer;
         }
-        .icono-canal img, .item-chat-avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .info-canal h3, .item-chat-nombre { font-size: 16px; font-weight: 600; }
-        .info-canal p, .item-chat-mensaje { font-size: 12px; color: var(--texto-claro); }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .info-cabecera h3 { font-size: 16px; font-weight: 500; }
+        .info-cabecera p { font-size: 12px; color: var(--texto-claro); }
+        .contenido { flex: 1; overflow-y: auto; padding-bottom: 70px; }
 
-        /* === CAJA DE MENSAJES Y BURBUJAS (EXACTAMENTE COMO ANTES) === */
+        /* === LISTA DE CHATS === */
+        .item-chat {
+            display: flex; align-items: center; gap: 12px; padding: 14px 15px;
+            border-bottom: 1px solid var(--borde); cursor: pointer; transition: background 0.2s;
+        }
+        .item-chat:hover { background: rgba(255,255,255,0.03); }
+        .item-chat-info { flex: 1; }
+        .item-chat-nombre { font-size: 15px; font-weight: 500; margin-bottom: 2px; }
+        .item-chat-ultimo { font-size: 13px; color: var(--texto-claro); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .item-chat-lado { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+        .item-chat-hora { font-size: 11px; color: var(--texto-claro); }
+        .btn-crear {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 56px; height: 56px;
+            border-radius: 50%;
+            background: var(--resaltado);
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37,211,102,0.3);
+            z-index: 50;
+        }
+
+        /* === CHAT Y MENSAJES === */
         .caja-mensajes {
             flex: 1;
             padding: 15px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232A3942' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            gap: 4px;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232A3942' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v-4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
         .mensaje {
             max-width: 75%;
@@ -166,21 +198,53 @@
             background: var(--burbuja-otra);
             border-bottom-left-radius: 2px;
         }
+        .mensaje-respuesta {
+            font-size: 12px;
+            padding: 6px 8px;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.05);
+            margin-bottom: 2px;
+            border-left: 3px solid var(--resaltado);
+            color: var(--texto-claro);
+        }
         .hora-mensaje {
             font-size: 10px;
             color: var(--texto-claro);
             align-self: flex-end;
             margin: 0 10px 2px;
+            display: flex; align-items: center; gap: 4px;
         }
         .imagen-mensaje, .audio-mensaje {
-            max-width: 220px;
+            max-width: 230px;
             border-radius: 8px;
             margin-top: 4px;
+        }
+        .audio-mensaje {
             padding: 10px;
             background: rgba(255,255,255,0.05);
         }
+        .menu-mensaje {
+            position: absolute;
+            top: -10px; right: 0;
+            background: var(--fondo-barra);
+            border-radius: 6px;
+            padding: 6px 0;
+            min-width: 120px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            display: none;
+            z-index: 10;
+        }
+        .mensaje:hover .menu-mensaje, .mensaje.activo .menu-mensaje { display: block; }
+        .menu-opcion {
+            padding: 8px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            color: var(--texto);
+        }
+        .menu-opcion:hover { background: rgba(255,255,255,0.05); }
+        .menu-opcion.eliminar { color: var(--rojo); }
 
-        /* === BARRA DE ESCRITURA (CON TODOS LOS BOTONES: TEXTO, EMOJI, IMAGEN, AUDIO) === */
+        /* === BARRA DE ESCRITURA === */
         .barra-escribir {
             padding: 10px 15px;
             background: var(--fondo-barra);
@@ -189,7 +253,7 @@
             align-items: flex-end;
             border-top: 1px solid var(--borde);
         }
-        .boton-adjuntar, .boton-emoji, .boton-microfono, .btn-enviar {
+        .boton-icono {
             width: 40px; height: 40px;
             border-radius: 50%;
             border: none;
@@ -199,9 +263,7 @@
             cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
-            transition: all 0.2s;
         }
-        .btn-enviar { background: var(--secundario); color: white; font-size: 16px; }
         .entrada-mensaje {
             flex: 1;
             padding: 10px 15px;
@@ -214,8 +276,39 @@
             min-height: 40px;
             max-height: 100px;
         }
+        .btn-enviar { background: var(--secundario); color: white; font-size: 16px; }
 
-        /* === NAVEGACIÓN INFERIOR Y BOTÓN TIENDA (ORIGINAL RGB) === */
+        /* === ESTADOS === */
+        .item-estado {
+            display: flex; align-items: center; gap: 12px; padding: 14px 15px;
+            border-bottom: 1px solid var(--borde); cursor: pointer; transition: background 0.2s;
+        }
+        .item-estado:hover { background: rgba(255,255,255,0.03); }
+        .estado-circulo {
+            width: 44px; height: 44px; border-radius: 50%;
+            border: 2px solid var(--resaltado);
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; flex-shrink: 0;
+        }
+        .estado-circulo.visto { border-color: var(--gris); }
+        .estado-circulo img { width: 100%; height: 100%; object-fit: cover; }
+        .estado-mio { border-color: var(--azul); }
+        .estado-texto { flex: 1; }
+        .estado-nombre { font-size: 15px; font-weight: 500; margin-bottom: 2px; }
+        .estado-hora { font-size: 12px; color: var(--texto-claro); }
+        .btn-agregar-estado {
+            position: fixed; bottom: 80px; right: 20px;
+            width: 50px; height: 50px; border-radius: 50%;
+            background: var(--resaltado); border: none; font-size: 24px;
+            cursor: pointer; box-shadow: 0 4px 12px rgba(37,211,102,0.3); z-index: 50;
+        }
+        .estado-completo {
+            position: fixed; inset: 0; background: black; display: none; flex-direction: column; z-index: 999;
+        }
+        .estado-imagen { width: 100%; height: 80%; object-fit: contain; }
+        .estado-info { padding: 15px; display: flex; align-items: center; gap: 12px; color: white; }
+
+        /* === NAVEGACIÓN INFERIOR === */
         .navegacion {
             position: fixed;
             bottom: 0;
@@ -229,94 +322,24 @@
             z-index: 100;
         }
         .btn-nav {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 3px;
-            background: transparent;
-            border: none;
-            color: var(--texto-claro);
-            font-size: 11px;
-            cursor: pointer;
-            border-radius: 10px;
-            padding: 5px 10px;
+            display: flex; flex-direction: column; align-items: center; gap: 3px;
+            background: transparent; border: none; color: var(--texto-claro);
+            font-size: 11px; cursor: pointer; border-radius: 10px; padding: 5px 10px;
         }
         .btn-nav.activo { color: var(--resaltado); }
         .btn-nav span { font-size: 22px; }
-        .btn-tienda {
-            position: relative;
-            overflow: hidden;
-            border: 2px solid transparent;
-        }
-        .btn-tienda::before {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            background: linear-gradient(45deg, #ff0000, #ff9900, #00ff00, #0099ff, #9900ff, #ff0000);
-            background-size: 400% 400%;
-            border-radius: 12px;
-            animation: brilloRGB 4s linear infinite;
-            filter: blur(4px);
-            opacity: 0.7;
-            z-index: -1;
-        }
-        @keyframes brilloRGB {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
 
-        /* === FUNCIONES NUEVAS SIN TOCAR LO ORIGINAL === */
-        .btn-crear-grupo {
-            position: fixed;
-            bottom: 90px;
-            right: 20px;
-            width: 55px; height: 55px;
-            border-radius: 50%;
-            background: var(--resaltado);
-            border: none;
-            font-size: 28px;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(37,211,102,0.3);
-            z-index: 50;
-        }
-        .lista-chats { height: calc(100vh - 140px); overflow-y: auto; }
-        .item-chat {
-            display: flex; align-items: center; gap: 12px; padding: 15px;
-            border-bottom: 1px solid var(--borde); cursor: pointer; transition: background 0.2s;
-        }
-        .item-chat:hover { background: rgba(255,255,255,0.03); }
-        .item-chat-info { flex: 1; }
-        .item-chat-hora { font-size: 11px; color: var(--texto-claro); flex-shrink: 0; }
-        .foto-perfil {
-            width: 50px; height: 50px; border-radius: 50%; background: var(--secundario);
-            display: flex; align-items: center; justify-content: center; font-size: 20px;
-            overflow: hidden; cursor: pointer; flex-shrink: 0;
-        }
-        .foto-perfil img { width: 100%; height: 100%; object-fit: cover; }
-        .cabecera-perfil {
-            display: flex; align-items: center; gap: 15px; padding: 15px;
-            background: var(--fondo-barra); border-bottom: 1px solid var(--borde);
-        }
-        .config-grupo, .modal { display: none; }
+        /* === MODALES === */
         .modal {
             position: fixed; inset: 0; background: rgba(0,0,0,0.8);
-            align-items: center; justify-content: center; padding: 20px; z-index: 200;
+            display: none; align-items: center; justify-content: center; padding: 20px; z-index: 200;
         }
         .modal-contenido {
             background: var(--fondo-barra); border: 1px solid var(--borde); border-radius: 16px;
             padding: 20px; width: 100%; max-width: 400px;
         }
-        .miembro-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px; border-bottom: 1px solid var(--borde);
-        }
-        .btn-eliminar {
-            background: rgba(255,68,68,0.15); color: var(--rojo); border: 1px solid var(--rojo);
-            padding: 5px 10px; border-radius: 6px; font-size: 12px; cursor: pointer;
-        }
-        .seccion { display: none; height: 100%; flex-direction: column; }
-        .seccion.activa { display: flex; }
+        .modal-botones { display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px; flex-wrap: wrap; }
+        .modal-botones .btn { width: auto; padding: 10px 15px; }
         .oculto { display: none !important; }
     </style>
 </head>
@@ -324,9 +347,9 @@
     <!-- PANTALLAS DE ACCESO -->
     <div class="pantalla" id="pantallaRegistro">
         <div class="caja-acceso">
-            <div class="logo-acceso"><h2>NEX NETWORK</h2></div>
-            <div class="grupo"><label>Tu nombre</label><input type="text" id="regApodo" placeholder="Ej: Juan Pérez" required></div>
-            <div class="grupo"><label>Correo corporativo</label><input type="email" id="regCorreo" placeholder="tu@empresa.com" required></div>
+            <div class="logo"><h1>WhatsApp XD</h1></div>
+            <div class="grupo"><label>Tu nombre completo</label><input type="text" id="regNombre" placeholder="Ej: María López" required></div>
+            <div class="grupo"><label>Correo electrónico</label><input type="email" id="regCorreo" placeholder="tu@correo.com" required></div>
             <div class="grupo"><label>Contraseña</label><input type="password" id="regClave" placeholder="Mínimo 6 caracteres" required></div>
             <div class="grupo"><label>Confirmar contraseña</label><input type="password" id="regConfirmar" placeholder="Repite tu contraseña" required></div>
             <div class="mensaje mensaje-error" id="errorRegistro"></div>
@@ -336,8 +359,8 @@
     </div>
     <div class="pantalla" id="pantallaLogin">
         <div class="caja-acceso">
-            <div class="logo-acceso"><h2>NEX NETWORK</h2></div>
-            <div class="grupo"><label>Correo corporativo</label><input type="email" id="logCorreo" placeholder="tu@empresa.com" required></div>
+            <div class="logo"><h1>WhatsApp XD</h1></div>
+            <div class="grupo"><label>Correo electrónico</label><input type="email" id="logCorreo" placeholder="tu@correo.com" required></div>
             <div class="grupo"><label>Contraseña</label><input type="password" id="logClave" placeholder="Escribe tu contraseña" required></div>
             <button class="btn-texto" onclick="mostrarPantalla('recuperar')">¿Olvidaste tu contraseña?</button>
             <div class="mensaje mensaje-error" id="errorLogin"></div>
@@ -347,8 +370,8 @@
     </div>
     <div class="pantalla" id="pantallaRecuperar">
         <div class="caja-acceso">
-            <div class="logo-acceso"><h2>Recuperar contraseña</h2></div>
-            <div class="grupo"><label>Tu correo</label><input type="email" id="recCorreo" placeholder="tu@empresa.com" required></div>
+            <div class="logo"><h1>Recuperar contraseña</h1></div>
+            <div class="grupo"><label>Ingresa tu correo</label><input type="email" id="recCorreo" placeholder="tu@correo.com" required></div>
             <div class="mensaje mensaje-exito" id="mensajeRecuperar"></div>
             <div class="mensaje mensaje-error" id="errorRecuperar"></div>
             <button class="btn btn-principal" onclick="recuperarContrasena()">Cambiar contraseña</button>
@@ -356,73 +379,81 @@
         </div>
     </div>
 
-    <!-- SECCIÓN LISTA DE CHATS -->
-    <div class="seccion" id="seccionLista">
-        <div class="cabecera-perfil">
-            <div class="foto-perfil" onclick="document.getElementById('subirFoto').click()">
-                <span id="inicialFoto">U</span><img id="vistaFoto" style="display:none;">
+    <!-- SECCIÓN CHATS -->
+    <div class="seccion" id="seccionChats">
+        <div class="cabecera">
+            <div class="avatar" onclick="document.getElementById('subirFotoPerfil').click()">
+                <span id="inicialPerfil">U</span><img id="vistaFotoPerfil" style="display:none;">
             </div>
-            <input type="file" id="subirFoto" accept="image/*" style="display:none;" onchange="cambiarFotoPerfil(this)">
-            <div class="info-canal"><h3 id="nombreUsuarioCabecera">Usuario</h3><p>Disponible</p></div>
+            <input type="file" id="subirFotoPerfil" accept="image/*" style="display:none;" onchange="cambiarFotoPerfil(this)">
+            <div class="info-cabecera"><h3 id="nombrePerfil">Usuario</h3><p>En línea</p></div>
         </div>
-        <div class="lista-chats" id="listaChats"></div>
-        <button class="btn-crear-grupo" onclick="abrirModalCrearGrupo()">+</button>
+        <div class="contenido" id="listaChats"></div>
+        <button class="btn-crear" onclick="abrirModalCrearGrupo()">+</button>
     </div>
 
-    <!-- SECCIÓN CHAT (ORIGINAL COMPLETA) -->
+    <!-- SECCIÓN CHAT INDIVIDUAL/GRUPO -->
     <div class="seccion" id="seccionChat">
-        <div class="cabecera-chat">
-            <button class="boton-adjuntar" onclick="volverALista()">←</button>
-            <div class="icono-canal" id="avatarChat">💬</div>
-            <div class="info-canal" onclick="abrirConfigGrupo()">
-                <h3 id="nombreChat">CANAL GENERAL</h3>
+        <div class="cabecera">
+            <button class="btn-volver" onclick="volverALista()">←</button>
+            <div class="avatar" id="avatarChat">💬</div>
+            <div class="info-cabecera">
+                <h3 id="nombreChat">Chat</h3>
                 <p id="infoChat">Conectado</p>
             </div>
+            <button class="boton-icono" onclick="iniciarLlamadaVoz()">📞</button>
         </div>
         <div class="caja-mensajes" id="cajaMensajes"></div>
         <div class="barra-escribir">
-            <input type="file" id="subirImagen" accept="image/*" style="display:none;" onchange="subirImagen(this)">
-            <button class="boton-adjuntar" onclick="document.getElementById('subirImagen').click()">📷</button>
-            <button class="boton-emoji" id="btnEmoji">😀</button>
+            <input type="file" id="subirImagenChat" accept="image/*" style="display:none;" onchange="subirImagenChat(this)">
+            <button class="boton-icono" onclick="document.getElementById('subirImagenChat').click()">📷</button>
+            <button class="boton-icono" id="btnEmoji">😀</button>
             <textarea id="entradaMensaje" class="entrada-mensaje" placeholder="Escribe un mensaje..." onkeydown="enviarConEnter(event)"></textarea>
-            <button class="boton-microfono" id="btnAudio">🎤</button>
-            <button class="btn-enviar" onclick="enviarMensaje()">➤</button>
+            <button class="boton-icono" id="btnAudio">🎤</button>
+            <button class="boton-icono btn-enviar" onclick="enviarMensaje()">➤</button>
         </div>
     </div>
 
-    <!-- MODALES DE GRUPOS -->
+    <!-- SECCIÓN ESTADOS -->
+    <div class="seccion" id="seccionEstados">
+        <div class="cabecera"><h3>Estados</h3></div>
+        <div class="contenido" id="listaEstados"></div>
+        <input type="file" id="subirEstado" accept="image/*" style="display:none;" onchange="publicarEstado(this)">
+        <button class="btn-agregar-estado" onclick="document.getElementById('subirEstado').click()">+</button>
+    </div>
+
+    <!-- NAVEGACIÓN -->
+    <nav class="navegacion" id="navegacion" style="display:none;">
+        <button class="btn-nav activo" onclick="cambiarSeccion('Chats')"><span>💬</span>Chats</button>
+        <button class="btn-nav" onclick="cambiarSeccion('Estados')"><span>📢</span>Estados</button>
+        <button class="btn-nav" onclick="cerrarSesion()"><span>🚪</span>Salir</button>
+    </nav>
+
+    <!-- MODALES -->
     <div class="modal" id="modalCrearGrupo">
         <div class="modal-contenido">
-            <h3>Crear grupo</h3>
+            <h3>Crear nuevo grupo</h3>
             <div class="grupo"><label>Nombre del grupo</label><input type="text" id="nombreGrupo" required></div>
-            <div class="grupo"><label>Descripción</label><input type="text" id="descGrupo"></div>
-            <div style="display:flex;gap:10px;margin-top:15px;">
-                <button class="btn btn-secundario" onclick="cerrarModal()">Cancelar</button>
-                <button class="btn btn-principal" onclick="crearGrupo()">Crear</button>
+            <div class="grupo"><label>Código de invitación</label><input type="text" id="codigoGrupo" readonly></div>
+            <div class="modal-botones">
+                <button class="btn btn-secundario" onclick="cerrarModalCrearGrupo()">Cancelar</button>
+                <button class="btn btn-principal" onclick="crearGrupo()">Crear grupo</button>
             </div>
         </div>
     </div>
-    <div class="modal" id="modalUnirse">
+    <div class="modal" id="modalUnirseGrupo">
         <div class="modal-contenido">
             <h3>Unirse a grupo</h3>
-            <div class="grupo"><label>Código de invitación</label><input type="text" id="codigoGrupo" required></div>
-            <div style="display:flex;gap:10px;margin-top:15px;">
-                <button class="btn btn-secundario" onclick="cerrarModal()">Cancelar</button>
+            <div class="grupo"><label>Ingresa el código</label><input type="text" id="codigoUnir" required></div>
+            <div class="modal-botones">
+                <button class="btn btn-secundario" onclick="cerrarModalUnirse()">Cancelar</button>
                 <button class="btn btn-principal" onclick="unirseGrupo()">Unirme</button>
             </div>
         </div>
     </div>
 
-    <!-- NAVEGACIÓN -->
-    <nav class="navegacion" id="navegacion" style="display:none;">
-        <button class="btn-nav activo" onclick="cambiarSeccion('lista')"><span>💬</span>Chats</button>
-        <button class="btn-nav" onclick="abrirModalUnirse()"><span>➕</span>Unirme</button>
-        <button class="btn-nav btn-tienda" onclick="window.location.href='tienda.html'"><span>🛒</span>Tienda</button>
-        <button class="btn-nav" onclick="cerrarSesion()"><span>🚪</span>Salir</button>
-    </nav>
-
     <script>
-        // === PROTECCIÓN SIN ERRORES EN APK ===
+        // === PROTECCIÓN PARA APK ===
         document.addEventListener('contextmenu', e => e.preventDefault());
         document.addEventListener('keydown', e => {
             if ((e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key.toUpperCase())) || e.key === 'F12') e.preventDefault();
@@ -430,11 +461,13 @@
 
         // === SEGURIDAD Y ALMACENAMIENTO ===
         function protegerClave(c) {let r=0;for(let i=0;i<c.length;i++)r=((r<<5)-r)+c.charCodeAt(i);return r.toString(16);}
-        let usuarios = JSON.parse(localStorage.getItem('usuariosNEX')) || [];
-        let sesion = JSON.parse(localStorage.getItem('sesionNEX')) || null;
-        let grupos = JSON.parse(localStorage.getItem('gruposNEX')) || [];
-        let mensajes = JSON.parse(localStorage.getItem('mensajesNEX')) || [];
+        let usuarios = JSON.parse(localStorage.getItem('usuariosXD')) || [];
+        let sesion = JSON.parse(localStorage.getItem('sesionXD')) || null;
+        let grupos = JSON.parse(localStorage.getItem('gruposXD')) || [];
+        let mensajes = JSON.parse(localStorage.getItem('mensajesXD')) || [];
+        let estados = JSON.parse(localStorage.getItem('estadosXD')) || [];
         let chatActivo = null;
+        let grabadora = null;
 
         // === INICIO ===
         window.onload = () => sesion ? mostrarApp() : mostrarPantalla('login');
@@ -447,129 +480,138 @@
         function mostrarApp() {
             mostrarPantalla();
             document.getElementById('navegacion').style.display='flex';
-            document.getElementById('nombreUsuarioCabecera').textContent = sesion.apodo;
-            document.getElementById('inicialFoto').textContent = sesion.apodo[0].toUpperCase();
-            if(sesion.foto) { document.getElementById('vistaFoto').src = sesion.foto; document.getElementById('vistaFoto').style.display='block'; document.getElementById('inicialFoto').style.display='none'; }
+            actualizarPerfil();
             actualizarListaChats();
-            cambiarSeccion('lista');
+            actualizarListaEstados();
+            cambiarSeccion('Chats');
         }
         function cambiarSeccion(t) {
             document.querySelectorAll('.seccion').forEach(s=>s.classList.remove('activa'));
             document.querySelectorAll('.btn-nav').forEach(b=>b.classList.remove('activo'));
-            document.getElementById(`seccion${t.charAt(0).toUpperCase()+t.slice(1)}`).classList.add('activa');
+            document.getElementById(`seccion${t}`).classList.add('activa');
             event?.target?.closest('.btn-nav')?.classList.add('activo');
         }
-        function volverALista() { chatActivo=null; cambiarSeccion('lista'); }
+        function volverALista() { chatActivo=null; cambiarSeccion('Chats'); }
 
-        // === REGISTRO, SESIÓN Y RECUPERACIÓN (ORIGINAL) ===
+        // === REGISTRO Y SESIÓN ===
         function registrarUsuario() {
-            let a = document.getElementById('regApodo').value.trim(), c = document.getElementById('regCorreo').value.trim().toLowerCase(),
+            let n = document.getElementById('regNombre').value.trim(), c = document.getElementById('regCorreo').value.trim().toLowerCase(),
                 p = document.getElementById('regClave').value, pc = document.getElementById('regConfirmar').value,
                 err = document.getElementById('errorRegistro');
-            if(!a||!c||p.length<6) {err.textContent='Completa todos los campos';err.style.display='block';return;}
-            if(p!==pc) {err.textContent='Contraseñas no coinciden';err.style.display='block';return;}
-            if(usuarios.find(u=>u.correo===c)) {err.textContent='Correo ya registrado';err.style.display='block';return;}
-            usuarios.push({id:Date.now().toString(),apodo:a,correo:c,clave:protegerClave(p),foto:null,tipo:'usuario'});
-            localStorage.setItem('usuariosNEX',JSON.stringify(usuarios));
-            alert('Cuenta creada ✅'); mostrarPantalla('login');
+            if(!n||!c||p.length<6) {err.textContent='Completa todos los campos (mínimo 6 caracteres)';err.style.display='block';return;}
+            if(p!==pc) {err.textContent='Las contraseñas no coinciden';err.style.display='block';return;}
+            if(usuarios.find(u=>u.correo===c)) {err.textContent='Este correo ya está registrado';err.style.display='block';return;}
+            usuarios.push({id:Date.now().toString(),nombre:n,correo:c,clave:protegerClave(p),foto:null});
+            localStorage.setItem('usuariosXD',JSON.stringify(usuarios));
+            alert('Cuenta creada correctamente ✅'); mostrarPantalla('login');
         }
         function iniciarSesion() {
             let c = document.getElementById('logCorreo').value.trim().toLowerCase(), p = document.getElementById('logClave').value,
                 err = document.getElementById('errorLogin'), u = usuarios.find(x=>x.correo===c&&x.clave===protegerClave(p));
-            if(!u) {err.textContent='Datos incorrectos';err.style.display='block';return;}
-            sesion = u; localStorage.setItem('sesionNEX',JSON.stringify(sesion)); mostrarApp();
+            if(!u) {err.textContent='Correo o contraseña incorrectos';err.style.display='block';return;}
+            sesion = u; localStorage.setItem('sesionXD',JSON.stringify(sesion)); mostrarApp();
         }
-        function cerrarSesion() {if(confirm('¿Cerrar sesión?')) {sesion=null;localStorage.removeItem('sesionNEX');mostrarPantalla('login');}}
+        function cerrarSesion() {if(confirm('¿Cerrar tu sesión de WhatsApp XD?')) {sesion=null;localStorage.removeItem('sesionXD');mostrarPantalla('login');}}
         function recuperarContrasena() {
             let c = document.getElementById('recCorreo').value.trim().toLowerCase(), u = usuarios.find(x=>x.correo===c),
                 msg = document.getElementById('mensajeRecuperar'), err = document.getElementById('errorRecuperar');
-            if(!u) {err.textContent='Correo no registrado';err.style.display='block';return;}
+            if(!u) {err.textContent='No existe cuenta con este correo';err.style.display='block';return;}
             let nueva = prompt('Escribe tu nueva contraseña (mínimo 6 caracteres):');
             if(!nueva||nueva.length<6) {err.textContent='Contraseña muy corta';err.style.display='block';return;}
-            u.clave = protegerClave(nueva); localStorage.setItem('usuariosNEX',JSON.stringify(usuarios));
+            u.clave = protegerClave(nueva); localStorage.setItem('usuariosXD',JSON.stringify(usuarios));
             msg.textContent='Contraseña actualizada ✅'; msg.style.display='block'; setTimeout(()=>mostrarPantalla('login'),2000);
         }
 
-        // === FOTO DE PERFIL ===
+        // === PERFIL Y FOTO ===
+        function actualizarPerfil() {
+            document.getElementById('nombrePerfil').textContent = sesion.nombre;
+            document.getElementById('inicialPerfil').textContent = sesion.nombre[0].toUpperCase();
+            if(sesion.foto) { document.getElementById('vistaFotoPerfil').src = sesion.foto; document.getElementById('vistaFotoPerfil').style.display='block'; document.getElementById('inicialPerfil').style.display='none'; }
+        }
         function cambiarFotoPerfil(i) {
             let a = i.files[0]; if(!a) return;
             let r = new FileReader(); r.onload = e => {
                 sesion.foto = e.target.result;
                 let idx = usuarios.findIndex(x=>x.id===sesion.id); if(idx!=-1) usuarios[idx].foto=e.target.result;
-                localStorage.setItem('usuariosNEX',JSON.stringify(usuarios)); localStorage.setItem('sesionNEX',JSON.stringify(sesion));
-                mostrarApp();
+                localStorage.setItem('usuariosXD',JSON.stringify(usuarios)); localStorage.setItem('sesionXD',JSON.stringify(sesion));
+                actualizarPerfil();
             }; r.readAsDataURL(a);
         }
 
-        // === GESTIÓN DE GRUPOS ===
-        function abrirModalCrearGrupo() {document.getElementById('modalCrearGrupo').style.display='flex';}
-        function abrirModalUnirse() {document.getElementById('modalUnirse').style.display='flex';}
-        function cerrarModal() {document.querySelectorAll('.modal').forEach(m=>m.style.display='none');}
-        function codigoInv() {return Math.random().toString(36).substring(2,10).toUpperCase();}
+        // === GRUPOS ===
+        function generarCodigo() { return Math.random().toString(36).substring(2,10).toUpperCase(); }
+        function abrirModalCrearGrupo() { document.getElementById('codigoGrupo').value = generarCodigo(); document.getElementById('modalCrearGrupo').style.display='flex'; }
+        function cerrarModalCrearGrupo() { document.getElementById('modalCrearGrupo').style.display='none'; }
         function crearGrupo() {
-            let n = document.getElementById('nombreGrupo').value.trim(), d = document.getElementById('descGrupo').value.trim();
+            let n = document.getElementById('nombreGrupo').value.trim(), c = document.getElementById('codigoGrupo').value.trim();
             if(!n) {alert('Escribe el nombre del grupo');return;}
-            let g = {id:Date.now().toString(),nombre:n,desc:d,codigo:codigoInv(),creador:sesion.id,miembros:[{id:sesion.id,rol:'admin'}]};
-            grupos.push(g); localStorage.setItem('gruposNEX',JSON.stringify(grupos)); cerrarModal(); actualizarListaChats();
-            alert(`Grupo creado! Código: ${g.codigo}`);
+            grupos.push({id:Date.now().toString(),nombre:n,codigo:c,creador:sesion.id,miembros:[{id:sesion.id}]});
+            localStorage.setItem('gruposXD',JSON.stringify(grupos)); cerrarModalCrearGrupo(); actualizarListaChats();
+            alert(`Grupo creado! Comparte el código: ${c}`);
         }
+        function abrirModalUnirseGrupo() { document.getElementById('modalUnirseGrupo').style.display='flex'; }
+        function cerrarModalUnirseGrupo() { document.getElementById('modalUnirseGrupo').style.display='none'; }
         function unirseGrupo() {
-            let c = document.getElementById('codigoGrupo').value.trim().toUpperCase(), g = grupos.find(x=>x.codigo===c);
-            if(!g) {alert('Código inválido');return;}
+            let c = document.getElementById('codigoUnir').value.trim().toUpperCase(), g = grupos.find(x=>x.codigo===c);
+            if(!g) {alert('Código no válido');return;}
             if(g.miembros.find(x=>x.id===sesion.id)) {alert('Ya estás en este grupo');return;}
-            g.miembros.push({id:sesion.id,rol:'miembro'}); localStorage.setItem('gruposNEX',JSON.stringify(grupos)); cerrarModal(); actualizarListaChats();
-            alert(`Te uniste a ${g.nombre}`);
+            g.miembros.push({id:sesion.id}); localStorage.setItem('gruposXD',JSON.stringify(grupos)); cerrarModalUnirseGrupo(); actualizarListaChats();
+            alert(`Te uniste a: ${g.nombre}`);
         }
-        function eliminarMiembro(gid, mid) {
-            let g = grupos.find(x=>x.id===gid); if(!g||g.creador!==sesion.id) {alert('No tienes permiso');return;}
-            if(mid===g.creador) {alert('No puedes eliminar al creador');return;}
-            if(confirm('¿Eliminar este miembro?')) {
-                g.miembros = g.miembros.filter(x=>x.id!==mid); localStorage.setItem('gruposNEX',JSON.stringify(grupos));
-                alert('Miembro eliminado ✅');
-            }
-        }
-        function abrirConfigGrupo() { if(!chatActivo) return; alert(`Código de invitación: ${chatActivo.codigo}\nCreador: ${usuarios.find(x=>x.id===chatActivo.creador)?.apodo}`); }
 
         // === LISTA DE CHATS ===
         function actualizarListaChats() {
             let l = document.getElementById('listaChats'); l.innerHTML='';
-            let misG = grupos.filter(g=>g.miembros.find(m=>m.id===sesion.id));
-            misG.forEach(g=>{
+            let misGrupos = grupos.filter(g=>g.miembros.find(m=>m.id===sesion.id));
+            misGrupos.forEach(g=>{
+                let ultimo = mensajes.filter(m=>m.grupo===g.id).pop();
                 let item = document.createElement('div'); item.className='item-chat'; item.onclick=()=>abrirChat(g);
-                item.innerHTML = `<div class="item-chat-avatar">👥</div><div class="item-chat-info"><div class="item-chat-nombre">${g.nombre}</div><div class="item-chat-mensaje">Código: ${g.codigo}</div></div>`;
+                item.innerHTML = `
+                    <div class="avatar">👥</div>
+                    <div class="item-chat-info">
+                        <div class="item-chat-nombre">${g.nombre}</div>
+                        <div class="item-chat-ultimo">${ultimo ? (ultimo.texto || '📷 Imagen' || '🎵 Audio') : 'Sin mensajes aún'}</div>
+                    </div>
+                    <div class="item-chat-lado">
+                        <div class="item-chat-hora">${ultimo ? ultimo.hora : ''}</div>
+                    </div>
+                `;
                 l.appendChild(item);
             });
-            if(misG.length===0) l.innerHTML='<div style="padding:30px;text-align:center;color:var(--texto-claro);">Crea un grupo o únete con un código</div>';
+            if(misGrupos.length===0) l.innerHTML='<div style="padding:30px;text-align:center;color:var(--texto-claro);">Crea un grupo o únete con un código</div>';
+            let btnUnir = document.createElement('div'); btnUnir.className='item-chat'; btnUnir.onclick=abrirModalUnirseGrupo;
+            btnUnir.innerHTML = `<div class="avatar">➕</div><div class="item-chat-info"><div class="item-chat-nombre">Unirme a grupo</div><div class="item-chat-ultimo">Ingresa un código de invitación</div></div>`;
+            l.appendChild(btnUnir);
         }
 
-        // === CHAT Y MENSAJES (FUNCIONAMIENTO ORIGINAL COMPLETO) ===
+        // === CHAT, MENSAJES Y RESPUESTAS ===
         function abrirChat(g) {
             chatActivo = g; document.getElementById('nombreChat').textContent = g.nombre;
             document.getElementById('infoChat').textContent = `${g.miembros.length} miembros`;
-            cambiarSeccion('chat'); actualizarChat();
+            cambiarSeccion('Chat'); actualizarChat();
         }
         function enviarMensaje() {
             let t = document.getElementById('entradaMensaje').value.trim(); if(!t||!chatActivo) return;
             mensajes.push({
-                id:Date.now().toString(),grupo:chatActivo.id,autor:sesion.id,nombre:sesion.apodo,texto:t,
-                hora:new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})
+                id:Date.now().toString(),grupo:chatActivo.id,autor:sesion.id,nombre:sesion.nombre,texto:t,
+                hora:new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'}),
+                respuesta: null
             });
-            localStorage.setItem('mensajesNEX',JSON.stringify(mensajes));
-            document.getElementById('entradaMensaje').value=''; actualizarChat();
+            localStorage.setItem('mensajesXD',JSON.stringify(mensajes));
+            document.getElementById('entradaMensaje').value=''; actualizarChat(); actualizarListaChats();
         }
         function enviarConEnter(e) { if(e.key==='Enter'&&!e.shiftKey) {e.preventDefault();enviarMensaje();} }
-        function subirImagen(i) {
+        function subirImagenChat(i) {
             let a = i.files[0]; if(!a||!chatActivo) return;
             let r = new FileReader(); r.onload = e => {
                 mensajes.push({
-                    id:Date.now().toString(),grupo:chatActivo.id,autor:sesion.id,nombre:sesion.apodo,
+                    id:Date.now().toString(),grupo:chatActivo.id,autor:sesion.id,nombre:sesion.nombre,
                     imagen:e.target.result,hora:new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})
                 });
-                localStorage.setItem('mensajesNEX',JSON.stringify(mensajes)); actualizarChat();
+                localStorage.setItem('mensajesXD',JSON.stringify(mensajes)); actualizarChat(); actualizarListaChats();
             }; r.readAsDataURL(a);
         }
-        // Audio (funcional como en la versión original)
-        let grabadora = null;
+        // Audio
         document.getElementById('btnAudio').addEventListener('mousedown', ()=>{
             if(!chatActivo) return;
             navigator.mediaDevices.getUserMedia({audio:true}).then(s=>{
@@ -578,10 +620,10 @@
                 grabadora.onstop = ()=>{
                     let blob = new Blob(datos,{type:'audio/webm'}), url = URL.createObjectURL(blob);
                     mensajes.push({
-                        id:Date.now().toString(),grupo:chatActivo.id,autor:sesion.id,nombre:sesion.apodo,
+                        id:Date.now().toString(),grupo:chatActivo.id,autor:sesion.id,nombre:sesion.nombre,
                         audio:url,hora:new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})
                     });
-                    localStorage.setItem('mensajesNEX',JSON.stringify(mensajes)); actualizarChat();
+                    localStorage.setItem('mensajesXD',JSON.stringify(mensajes)); actualizarChat(); actualizarListaChats();
                 };
                 grabadora.start();
             });
@@ -589,9 +631,21 @@
         document.getElementById('btnAudio').addEventListener('mouseup', ()=>{ if(grabadora) grabadora.stop(); grabadora=null; });
         // Emojis
         document.getElementById('btnEmoji').addEventListener('click', ()=>{
-            let emojis = ['😀😂😍👍🔥💬📷🎵📢⚠️✅❌'];
+            let emojis = ['😀','😂','😍','👍','🔥','💬','📷','🎵','✅','❌','🤔','😎','❤️','🎉'];
             document.getElementById('entradaMensaje').value += emojis[Math.floor(Math.random()*emojis.length)];
         });
+        // Eliminar mensaje (solo propio)
+        function eliminarMensaje(id) {
+            let m = mensajes.find(x=>x.id===id);
+            if(!m||m.autor!==sesion.id) {alert('Solo puedes eliminar tus propios mensajes');return;}
+            if(confirm('¿Eliminar este mensaje?')) {
+                mensajes = mensajes.filter(x=>x.id!==id); localStorage.setItem('mensajesXD',JSON.stringify(mensajes));
+                actualizarChat(); actualizarListaChats();
+            }
+        }
+        // Llamada de voz
+        function iniciarLlamadaVoz() { alert('Llamada de voz iniciada 📞\n(En versión completa se conecta en tiempo real)'); }
+        // Actualizar chat en tiempo real
         function actualizarChat() {
             if(!chatActivo) return;
             let c = document.getElementById('cajaMensajes'); c.innerHTML='';
@@ -599,14 +653,66 @@
             m.forEach(msg=>{
                 let mio = msg.autor===sesion.id, div = document.createElement('div');
                 div.className = `mensaje ${mio?'mensaje-propio':'mensaje-otro'}`;
+                div.innerHTML += `
+                    <div class="menu-mensaje">
+                        <div class="menu-opcion" onclick="responderMensaje('${msg.id}')">↩️ Responder</div>
+                        ${mio?`<div class="menu-opcion eliminar" onclick="eliminarMensaje('${msg.id}')">🗑️ Eliminar</div>`:''}
+                    </div>
+                `;
                 if(!mio) div.innerHTML += `<div class="mensaje-autor">${msg.nombre}</div>`;
+                if(msg.respuesta) div.innerHTML += `<div class="mensaje-respuesta">Respuesta a: ${msg.respuesta}</div>`;
                 if(msg.texto) div.innerHTML += `<div class="texto-mensaje">${msg.texto}</div>`;
                 if(msg.imagen) div.innerHTML += `<img src="${msg.imagen}" class="imagen-mensaje">`;
                 if(msg.audio) div.innerHTML += `<audio controls class="audio-mensaje" src="${msg.audio}">`;
-                div.innerHTML += `<div class="hora-mensaje">${msg.hora}</div>`;
+                div.innerHTML += `<div class="hora-mensaje">${msg.hora} ✔✔</div>`;
                 c.appendChild(div);
             });
             c.scrollTop = c.scrollHeight;
+        }
+        setInterval(actualizarChat, 1000); // Actualización en tiempo real
+
+        // === ESTADOS ===
+        function actualizarListaEstados() {
+            let l = document.getElementById('listaEstados'); l.innerHTML='';
+            // Mis estado
+            let miEstado = estados.find(e=>e.autor===sesion.id);
+            let itemMio = document.createElement('div'); itemMio.className='item-estado';
+            itemMio.innerHTML = `
+                <div class="estado-circulo estado-mio">${miEstado?`<img src="${miEstado.imagen}">`:'➕'}</div>
+                <div class="estado-texto">
+                    <div class="estado-nombre">Mi estado</div>
+                    <div class="estado-hora">${miEstado?'Publicado':'Toca para agregar'}</div>
+                </div>
+                ${miEstado?`<button class="btn-eliminar" style="padding:5px 8px;font-size:11px;" onclick="eliminarEstado('${miEstado.id}')">🗑️</button>`:''}
+            `;
+            l.appendChild(itemMio);
+            // Otros estados
+            estados.filter(e=>e.autor!==sesion.id).forEach(e=>{
+                let item = document.createElement('div'); item.className='item-estado';
+                item.innerHTML = `
+                    <div class="estado-circulo"><img src="${e.imagen}"></div>
+                    <div class="estado-texto">
+                        <div class="estado-nombre">${e.nombreAutor}</div>
+                        <div class="estado-hora">${e.hora}</div>
+                    </div>
+                `;
+                l.appendChild(item);
+            });
+        }
+        function publicarEstado(i) {
+            let a = i.files[0]; if(!a) return;
+            let r = new FileReader(); r.onload = e => {
+                estados = estados.filter(x=>x.autor!==sesion.id); // Solo un estado por usuario
+                estados.push({
+                    id:Date.now().toString(),autor:sesion.id,nombreAutor:sesion.nombre,
+                    imagen:e.target.result,hora:new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})
+                });
+                localStorage.setItem('estadosXD',JSON.stringify(estados)); actualizarListaEstados();
+            }; r.readAsDataURL(a);
+        }
+        function eliminarEstado(id) {
+            let e = estados.find(x=>x.id===id); if(!e||e.autor!==sesion.id) {alert('Solo puedes eliminar tu estado');return;}
+            if(confirm('¿Eliminar tu estado?')) { estados = estados.filter(x=>x.id!==id); localStorage.setItem('estadosXD',JSON.stringify(estados)); actualizarListaEstados(); }
         }
     </script>
 </body>
